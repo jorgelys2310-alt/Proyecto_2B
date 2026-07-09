@@ -1,8 +1,14 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"Proyecto_2B/config"
+
+	"github.com/gin-gonic/gin"
+)
 
 func main() {
+	config.ConnectDatabase()
+
 	r := gin.Default()
 
 	r.GET("/", func(c *gin.Context) {
