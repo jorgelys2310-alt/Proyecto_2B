@@ -1,0 +1,670 @@
+basePath: /api
+definitions:
+  dto.APIError:
+    properties:
+      error:
+        type: string
+      message:
+        type: string
+      path:
+        type: string
+      status:
+        type: integer
+      timestamp:
+        type: string
+    type: object
+  dto.CreateReceiptRequest:
+    properties:
+      items:
+        items:
+          $ref: '#/definitions/dto.ReceiptItemRequest'
+        minItems: 1
+        type: array
+      userId:
+        type: integer
+    required:
+    - items
+    - userId
+    type: object
+  dto.LoginRequest:
+    properties:
+      email:
+        type: string
+      password:
+        type: string
+    required:
+    - email
+    - password
+    type: object
+  dto.LoginResponse:
+    properties:
+      token:
+        type: string
+      user:
+        $ref: '#/definitions/dto.UserResponse'
+    type: object
+  dto.ProductRequest:
+    properties:
+      amount:
+        minimum: 0
+        type: integer
+      description:
+        type: string
+      imageUrl:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+    required:
+    - name
+    - price
+    type: object
+  dto.ProductResponse:
+    properties:
+      amount:
+        type: integer
+      description:
+        type: string
+      imageUrl:
+        type: string
+      name:
+        type: string
+      price:
+        type: number
+      productId:
+        type: integer
+    type: object
+  dto.ReceiptItemRequest:
+    properties:
+      productId:
+        type: integer
+      quantity:
+        minimum: 1
+        type: integer
+    required:
+    - productId
+    - quantity
+    type: object
+  dto.ReceiptItemResponse:
+    properties:
+      productId:
+        type: integer
+      productName:
+        type: string
+      quantity:
+        type: integer
+      subtotal:
+        type: number
+      unitPrice:
+        type: number
+    type: object
+  dto.ReceiptResponse:
+    properties:
+      amountOfItems:
+        type: integer
+      createdAt:
+        type: string
+      items:
+        items:
+          $ref: '#/definitions/dto.ReceiptItemResponse'
+        type: array
+      receiptId:
+        type: integer
+      total:
+        type: number
+      userEmail:
+        type: string
+      userId:
+        type: integer
+    type: object
+  dto.RegisterUserRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phoneNumber:
+        type: string
+    required:
+    - email
+    - firstName
+    - lastName
+    - password
+    type: object
+  dto.UpdateUserRequest:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      password:
+        minLength: 6
+        type: string
+      phoneNumber:
+        type: string
+    type: object
+  dto.UserResponse:
+    properties:
+      address:
+        type: string
+      email:
+        type: string
+      firstName:
+        type: string
+      lastName:
+        type: string
+      phoneNumber:
+        type: string
+      userId:
+        type: integer
+    type: object
+host: localhost:8080
+info:
+  contact:
+    email: jorge@epn.edu.ec
+    name: Grupo 8 - Aplicaciones Web
+  description: |-
+    API REST de e-commerce desarrollada con Go, Gin, GORM, PostgreSQL y JWT.
+    Permite administrar usuarios, productos y recibos de compra.
+  license:
+    name: MIT
+  termsOfService: http://swagger.io/terms/
+  title: API REST E-commerce - Grupo 8
+  version: "1.0"
+paths:
+  /products:
+    get:
+      description: Devuelve todos los productos registrados.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ProductResponse'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      summary: Listar productos
+      tags:
+      - Products
+    post:
+      consumes:
+      - application/json
+      description: Registra un producto nuevo en el catálogo.
+      parameters:
+      - description: Datos del producto
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Crear producto
+      tags:
+      - Products
+  /products/{id}:
+    delete:
+      description: Elimina un producto del catálogo.
+      parameters:
+      - description: ID del producto
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Producto eliminado correctamente
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Eliminar producto
+      tags:
+      - Products
+    get:
+      description: Devuelve un producto específico.
+      parameters:
+      - description: ID del producto
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      summary: Buscar producto por ID
+      tags:
+      - Products
+    put:
+      consumes:
+      - application/json
+      description: Actualiza todos los datos de un producto.
+      parameters:
+      - description: ID del producto
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Nuevos datos del producto
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.ProductRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ProductResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Actualizar producto
+      tags:
+      - Products
+  /receipts:
+    get:
+      description: Devuelve todos los recibos registrados.
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ReceiptResponse'
+            type: array
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Listar recibos
+      tags:
+      - Receipts
+    post:
+      consumes:
+      - application/json
+      description: Crea una compra, calcula el total y descuenta automáticamente el
+        stock.
+      parameters:
+      - description: Usuario y productos comprados
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.CreateReceiptRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.ReceiptResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Crear recibo
+      tags:
+      - Receipts
+  /receipts/{id}:
+    delete:
+      description: Elimina un recibo y sus detalles.
+      parameters:
+      - description: ID del recibo
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Recibo eliminado correctamente
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Eliminar recibo
+      tags:
+      - Receipts
+    get:
+      description: Devuelve un recibo con sus productos y subtotales.
+      parameters:
+      - description: ID del recibo
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.ReceiptResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Buscar recibo por ID
+      tags:
+      - Receipts
+  /receipts/user/{userId}:
+    get:
+      description: Devuelve todos los recibos pertenecientes a un usuario.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/dto.ReceiptResponse'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Listar recibos de un usuario
+      tags:
+      - Receipts
+  /users/{id}:
+    delete:
+      description: Elimina un usuario de la base de datos.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: Usuario eliminado correctamente
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Eliminar usuario
+      tags:
+      - Users
+    get:
+      description: Obtiene los datos públicos de un usuario.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Buscar usuario por ID
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Actualiza uno o varios datos de un usuario existente.
+      parameters:
+      - description: ID del usuario
+        in: path
+        name: id
+        required: true
+        type: integer
+      - description: Datos que se actualizarán
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.UpdateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      security:
+      - BearerAuth: []
+      summary: Actualizar usuario
+      tags:
+      - Users
+  /users/login:
+    post:
+      consumes:
+      - application/json
+      description: Valida las credenciales y devuelve un token JWT.
+      parameters:
+      - description: Credenciales del usuario
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.LoginRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/dto.LoginResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "401":
+          description: Unauthorized
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      summary: Iniciar sesión
+      tags:
+      - Users
+  /users/register:
+    post:
+      consumes:
+      - application/json
+      description: Crea un usuario nuevo y guarda su contraseña cifrada con BCrypt.
+      parameters:
+      - description: Datos del nuevo usuario
+        in: body
+        name: request
+        required: true
+        schema:
+          $ref: '#/definitions/dto.RegisterUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/dto.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/dto.APIError'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/dto.APIError'
+      summary: Registrar usuario
+      tags:
+      - Users
+schemes:
+- http
+securityDefinitions:
+  BearerAuth:
+    description: 'Escriba el token con el formato: Bearer {token}'
+    in: header
+    name: Authorization
+    type: apiKey
+swagger: "2.0"
