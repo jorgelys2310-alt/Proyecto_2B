@@ -48,8 +48,7 @@ func (s *ProductService) Create(
 	return &response, nil
 }
 
-func (s *ProductService) FindAll(
-) ([]dto.ProductResponse, error) {
+func (s *ProductService) FindAll() ([]dto.ProductResponse, error) {
 
 	products, err := s.ProductRepository.FindAll()
 	if err != nil {

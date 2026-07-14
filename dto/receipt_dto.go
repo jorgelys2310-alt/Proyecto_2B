@@ -1,17 +1,18 @@
 package dto
 
 import (
-	"github.com/shopspring/decimal"
 	"time"
+
+	"github.com/shopspring/decimal"
 )
 
 type ReceiptItemRequest struct {
-	ProductID unit `json:"productId" binding:"required"`
-	Quantity  init `json:"quantity" binding: "required,min=1"`
+	ProductID uint `json:"productId" binding:"required"`
+	Quantity  int  `json:"quantity" binding:"required,min=1"`
 }
 
 type CreateReceiptRequest struct {
-	UserID unit                 `json:"userId" binbing:"required"`
+	UserID uint                 `json:"userId" binding:"required"`
 	Items  []ReceiptItemRequest `json:"items" binding:"required,min=1,dive"`
 }
 

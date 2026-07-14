@@ -163,8 +163,7 @@ func (s *ReceiptService) FindByID(
 	return s.buildResponse(receipt)
 }
 
-func (s *ReceiptService) FindAll(
-) ([]dto.ReceiptResponse, error) {
+func (s *ReceiptService) FindAll() ([]dto.ReceiptResponse, error) {
 
 	receipts, err := s.ReceiptRepository.FindAll()
 	if err != nil {
