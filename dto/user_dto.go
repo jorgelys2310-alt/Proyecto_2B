@@ -31,3 +31,8 @@ type UserResponse struct {
 	Address     string `json:"address"`
 	PhoneNumber string `json:"phoneNumber"`
 }
+
+type LoginResponse struct {
+	Token string       `json:"token"`
+	User  UserResponse `json:"user"`
+}

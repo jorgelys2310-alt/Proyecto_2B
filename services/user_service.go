@@ -61,7 +61,7 @@ func (s *UserService) Register(
 
 func (s *UserService) Login(
 	request dto.LoginRequest,
-) (*dto.UserResponse, error) {
+) (*dto.LoginResponse, error) {
 
 	user, err := s.UserRepository.FindByEmail(request.Email)
 
@@ -77,7 +77,18 @@ func (s *UserService) Login(
 		return nil, exceptions.ErrInvalidCredentials
 	}
 
-	response := s.toResponse(user)
+	token, err := utils.GenerateToken(user.UserID, user.Email)
+	if err != nil {
+		return nil, err
+	}
+
+	userResponse := s.toResponse(user)
+
+	response := dto.LoginResponse{
+		Token: token,
+		User:  userResponse,
+	}
+
 	return &response, nil
 }
 
