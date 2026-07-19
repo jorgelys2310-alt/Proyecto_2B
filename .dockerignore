@@ -1,0 +1,8 @@
+.git
+.env
+*.log
+tmp/
+.gotmp/
+postman/
+docs/swagger.json
+docs/swagger.yaml
